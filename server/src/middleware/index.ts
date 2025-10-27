@@ -6,4 +6,3 @@ export { default as validation } from './validation.js';
 export { default as requestLogger } from './requestLogger.js';
 export { default as cors } from './cors.js';
 export { default as security } from './security.js';
-export { notFoundHandler, asyncHandler, CustomError } from './errorHandler.js';

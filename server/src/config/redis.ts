@@ -9,9 +9,9 @@ interface RedisHealth {
 
 class RedisManager {
   private client: RedisClientType | null = null;
-  private isConnected = false;
-  private connectionAttempts = 0;
-  private readonly maxRetryAttempts = 5;
+  private isConnected: boolean = false;
+  private connectionAttempts: number = 0;
+  private maxRetryAttempts: number = 5;
 
   /**
    * Connect to Redis with retry logic
@@ -24,37 +24,41 @@ class RedisManager {
 
     try {
       this.connectionAttempts++;
-
+      
       logger.info('Connecting to Redis...', {
         url: this.sanitizeUrl(config.redisUrl),
         attempt: this.connectionAttempts,
         maxAttempts: this.maxRetryAttempts,
       });
 
+      // Create Redis client
       this.client = createClient({
         url: config.redisUrl,
-        database: 0,
+        database: 0, // Use database 0 by default
         socket: {
           connectTimeout: 30000,
           lazyConnect: true,
-          reconnectStrategy: retries => {
+          reconnectStrategy: (retries) => {
             if (retries > 10) {
               return new Error('Max reconnection attempts reached');
             }
             return Math.min(retries * 100, 3000);
           },
         },
-        commandQueueMaxLength: 1000,
+        commandsQueueMaxLength: 1000,
       });
 
+      // Set up event listeners
       this.setupEventListeners();
 
+      // Connect to Redis
       await this.client.connect();
-
+      
       this.isConnected = true;
       this.connectionAttempts = 0;
-
+      
       logger.info('Redis connected successfully');
+      
     } catch (error: any) {
       logger.error('Redis connection failed', {
         error: error.message,
@@ -67,11 +71,12 @@ class RedisManager {
         logger.info(`Retrying Redis connection in ${delay}ms...`);
         await this.delay(delay);
         return this.connect();
+      } else {
+        logger.error('Max Redis connection attempts reached. Continuing without Redis...');
+        // Don't throw error - Redis is not critical for basic functionality
+        this.client = null;
+        this.isConnected = false;
       }
-
-      logger.error('Max Redis connection attempts reached. Continuing without Redis...');
-      this.client = null;
-      this.isConnected = false;
     }
   }
 
@@ -128,11 +133,15 @@ class RedisManager {
 
     try {
       const startTime = Date.now();
+      
+      // Ping Redis
       const pong = await this.client.ping();
       const responseTime = Date.now() - startTime;
+      
+      // Get Redis info
       const info = await this.client.info();
       const memory = await this.client.info('memory');
-
+      
       return {
         status: 'healthy',
         details: {
@@ -162,7 +171,7 @@ class RedisManager {
    */
   async get(key: string): Promise<string | null> {
     if (!this.isAvailable()) return null;
-
+    
     try {
       return await this.client!.get(key);
     } catch (error: any) {
@@ -173,7 +182,7 @@ class RedisManager {
 
   async set(key: string, value: string, ttl?: number): Promise<boolean> {
     if (!this.isAvailable()) return false;
-
+    
     try {
       if (ttl) {
         await this.client!.setEx(key, ttl, value);
@@ -189,7 +198,7 @@ class RedisManager {
 
   async del(key: string): Promise<boolean> {
     if (!this.isAvailable()) return false;
-
+    
     try {
       await this.client!.del(key);
       return true;
@@ -201,7 +210,7 @@ class RedisManager {
 
   async exists(key: string): Promise<boolean> {
     if (!this.isAvailable()) return false;
-
+    
     try {
       const result = await this.client!.exists(key);
       return result === 1;
@@ -217,9 +226,9 @@ class RedisManager {
   async getJSON<T>(key: string): Promise<T | null> {
     const value = await this.get(key);
     if (!value) return null;
-
+    
     try {
-      return JSON.parse(value) as T;
+      return JSON.parse(value);
     } catch (error: any) {
       logger.error('Redis JSON parse error', { key, error: error.message });
       return null;
@@ -236,6 +245,9 @@ class RedisManager {
     }
   }
 
+  /**
+   * Setup event listeners
+   */
   private setupEventListeners(): void {
     if (!this.client) return;
 
@@ -248,7 +260,7 @@ class RedisManager {
       this.isConnected = true;
     });
 
-    this.client.on('error', error => {
+    this.client.on('error', (error) => {
       logger.error('Redis client error', { error: error.message });
       this.isConnected = false;
     });
@@ -264,21 +276,31 @@ class RedisManager {
     });
   }
 
+  /**
+   * Extract info from Redis INFO command output
+   */
   private extractInfo(info: string, key: string): string {
     const lines = info.split('\r\n');
     const line = lines.find(l => l.startsWith(`${key}:`));
     return line ? line.split(':')[1] : 'unknown';
   }
 
+  /**
+   * Sanitize Redis URL for logging
+   */
   private sanitizeUrl(url: string): string {
     return url.replace(/:([^@]+)@/, ':***@');
   }
 
+  /**
+   * Utility delay function
+   */
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
 
+// Export singleton instance
 const redis = new RedisManager();
 
 export default redis;
