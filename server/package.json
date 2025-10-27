@@ -28,7 +28,7 @@
     "rate-limit-redis": "^4.2.0",
     "dotenv": "^16.3.1",
     "winston": "^3.11.0",
-    "stripe": "^14.11.0",
+    "stripe": "^19.1.0",
     "axios": "^1.6.5"
   },
   "devDependencies": {
