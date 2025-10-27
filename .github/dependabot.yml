@@ -1,29 +1,24 @@
 version: 2
 updates:
+  # npm dependencies
   - package-ecosystem: "npm"
-    directory: "/client"
+    directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
     open-pull-requests-limit: 10
+    reviewers:
+      - "IOUser755"
     labels:
       - "dependencies"
-      - "client"
-  
-  - package-ecosystem: "npm"
-    directory: "/server"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "server"
-  
+      - "npm"
+
+  # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    reviewers:
+      - "IOUser755"
     labels:
       - "dependencies"
       - "github-actions"

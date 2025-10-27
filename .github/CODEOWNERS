@@ -1,16 +1,13 @@
-# Global owners
-* @your-org/platform-team
-
-# Frontend
-/client/ @your-org/frontend-team
-
-# Backend  
-/server/ @your-org/backend-team
-
-# DevOps
-/.github/ @your-org/devops-team
-/docker/ @your-org/devops-team
+# CODEOWNERS
+# Default owners for everything in the repo
+* @IOUser755
 
 # Documentation
-/docs/ @your-org/docs-team
-README.md @your-org/docs-team
+/docs/ @IOUser755
+*.md @IOUser755
+
+# CI/CD
+/.github/ @IOUser755
+
+# Architecture decisions
+/docs/adr/ @IOUser755
