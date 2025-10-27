@@ -1,0 +1,16 @@
+# Global owners
+* @your-org/platform-team
+
+# Frontend
+/client/ @your-org/frontend-team
+
+# Backend  
+/server/ @your-org/backend-team
+
+# DevOps
+/.github/ @your-org/devops-team
+/docker/ @your-org/devops-team
+
+# Documentation
+/docs/ @your-org/docs-team
+README.md @your-org/docs-team
