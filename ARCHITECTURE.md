@@ -1,35 +1,56 @@
-# AgentPay Hub
+# Architecture Overview
 
-Multi-tenant SaaS platform for creating and managing AI payment agents.
+## AP2_01 - MongoDB-React-Node.js Application
 
-## Prerequisites
+This document provides a high-level overview of the AP2_01 architecture, design decisions, and key components.
 
-- [Node.js 22 LTS](https://nodejs.org/)
-- npm 10 or later
+## Stack Overview
 
-## Quick Start
+### Backend (Node.js + Express)
+- **Runtime**: Node.js with Express framework
+- **Database**: MongoDB with Mongoose ODM
+- **API**: RESTful endpoints with JSON responses
+- **Authentication**: JWT-based authentication
 
-```bash
-# Install dependencies
-npm install
+### Frontend (React)
+- **Framework**: React 18+ with functional components
+- **State Management**: Context API / Redux (TBD)
+- **Styling**: Tailwind CSS for utility-first styling
+- **Build Tool**: Vite for fast development
 
-# Set up environment
-cp server/.env.example server/.env
-cp client/.env.example client/.env
+### Development Tools
+- **TypeScript**: Type safety across the stack
+- **Testing**: Jest + React Testing Library
+- **CI/CD**: GitHub Actions (see `.github/workflows/ci.yml`)
+- **Linting**: ESLint + Prettier
 
-# Start development servers
-npm run dev
+## Project Structure
+
+```
+AP2_01/
+├── client/          # React frontend
+├── server/          # Express backend
+├── docs/            # Documentation
+│   ├── adr/        # Architecture Decision Records
+│   └── ai/         # AI agent documentation
+├── .github/         # GitHub workflows and templates
+└── tests/           # Test suites
 ```
 
-Visit http://localhost:3000
+## Key Architectural Decisions
 
-## Documentation
+For detailed architectural decisions, see:
+- [ADR Directory](/docs/adr/) - All architecture decision records
+- [Foundation ADRs](https://github.com/IOUser755/foundation/tree/main/docs/adr) - Organizational standards
 
-See `/docs` folder for complete documentation.
+## Design Principles
 
-## License
+1. **Separation of Concerns**: Clear boundaries between frontend, backend, and data layers
+2. **Scalability**: Modular design supporting horizontal scaling
+3. **Type Safety**: TypeScript throughout for reliability
+4. **Test Coverage**: Comprehensive unit and integration tests
+5. **Documentation First**: All decisions recorded in ADRs
 
-MIT
 # System Architecture - AP2_01 MERN SaaS Platform
 
 ## 📋 Table of Contents
