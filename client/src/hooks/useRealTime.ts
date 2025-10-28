@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { useWebSocket } from '@context/WebSocketContext';
+import { useWebSocket } from './useWebSocket';
 
 interface UseRealTimeOptions<T> {
   event: string;
@@ -15,13 +15,13 @@ export function useRealTime<T = any>({
   transform,
   filter,
 }: UseRealTimeOptions<T>) {
-  const { subscribe, isConnected } = useWebSocket();
+  const { subscribe, connected } = useWebSocket();
   const [data, setData] = useState<T | undefined>(initialData);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    if (!isConnected) {
+    if (!connected) {
       return;
     }
 
@@ -43,12 +43,12 @@ export function useRealTime<T = any>({
         unsubscribeRef.current = null;
       }
     };
-  }, [event, filter, isConnected, subscribe, transform]);
+  }, [connected, event, filter, subscribe, transform]);
 
   return {
     data,
     lastUpdate,
-    isConnected,
+    isConnected: connected,
   };
 }
 

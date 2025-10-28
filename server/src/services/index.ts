@@ -4,6 +4,8 @@ export { default as ToolRegistry } from './agent/ToolRegistry.js';
 export { default as WorkflowEngine } from './agent/WorkflowEngine.js';
 export { default as MandateGenerator } from './mandate/MandateGenerator.js';
 export { default as PaymentProcessor } from './payment/PaymentProcessor.js';
+export { complianceService } from './compliance/ComplianceService.js';
+export { analyticsService } from './analytics/AnalyticsService.js';
 
 // Type exports
 export type { ExecutionContext, StepResult, ExecutionResult } from './agent/AgentOrchestrator.js';

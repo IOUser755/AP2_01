@@ -25,7 +25,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const { user, logout } = useAuth();
   const { actualTheme, toggleTheme } = useTheme();
-  const { isConnected } = useWebSocket();
+  const { connected } = useWebSocket();
 
   const handleLogout = async () => {
     try {
@@ -53,11 +53,11 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         <div className="flex items-center gap-x-4 lg:gap-x-6">
           <div className="flex items-center space-x-2">
             <span
-              className={clsx('h-2 w-2 rounded-full', isConnected ? 'bg-success-500' : 'bg-error-500')}
+              className={clsx('h-2 w-2 rounded-full', connected ? 'bg-success-500' : 'bg-error-500')}
               aria-hidden="true"
             />
             <span className="text-xs text-gray-500">
-              {isConnected ? 'Connected' : 'Disconnected'}
+              {connected ? 'Connected' : 'Disconnected'}
             </span>
           </div>
 
