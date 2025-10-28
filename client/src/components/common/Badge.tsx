@@ -11,18 +11,18 @@ interface BadgeProps {
 }
 
 const badgeVariants: Record<NonNullable<BadgeProps['variant']>, string> = {
-  primary: 'bg-primary-100 text-primary-800 ring-primary-600/20',
-  secondary: 'bg-blue-100 text-blue-800 ring-blue-600/20',
-  success: 'bg-success-100 text-success-800 ring-success-600/20',
-  warning: 'bg-warning-100 text-warning-800 ring-warning-600/20',
-  error: 'bg-error-100 text-error-800 ring-error-600/20',
-  gray: 'bg-gray-100 text-gray-800 ring-gray-600/20',
+  primary: 'bg-brand-100 text-brand-700',
+  secondary: 'bg-brand-50 text-brand-600',
+  success: 'bg-success-100 text-success-700',
+  warning: 'bg-warning-100 text-warning-700',
+  error: 'bg-error-100 text-error-700',
+  gray: 'bg-neutral-100 text-neutral-600',
 };
 
 const badgeSizes: Record<NonNullable<BadgeProps['size']>, string> = {
-  sm: 'px-2 py-1 text-xs',
-  md: 'px-2.5 py-1.5 text-sm',
-  lg: 'px-3 py-2 text-base',
+  sm: 'px-3 py-1 text-[10px]',
+  md: 'px-3.5 py-1.5 text-xs',
+  lg: 'px-4 py-2 text-sm',
 };
 
 export const Badge: React.FC<BadgeProps> = ({
@@ -42,7 +42,7 @@ export const Badge: React.FC<BadgeProps> = ({
   return (
     <span
       className={clsx(
-        'inline-flex items-center gap-1 rounded-full font-medium ring-1 ring-inset',
+        'inline-flex items-center gap-1 rounded-full font-semibold uppercase tracking-[0.28em]',
         badgeVariants[variant],
         badgeSizes[size],
         className

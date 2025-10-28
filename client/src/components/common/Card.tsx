@@ -13,16 +13,16 @@ interface CardProps {
 
 const cardPadding: Record<NonNullable<CardProps['padding']>, string> = {
   none: '',
-  sm: 'p-4',
-  md: 'p-6',
-  lg: 'p-8',
+  sm: 'p-5',
+  md: 'p-7',
+  lg: 'p-9',
 };
 
 const cardShadow: Record<NonNullable<CardProps['shadow']>, string> = {
   none: '',
-  sm: 'shadow-sm',
-  md: 'shadow-md',
-  lg: 'shadow-lg',
+  sm: 'shadow-brand-ring',
+  md: 'shadow-brand-soft',
+  lg: 'shadow-medium',
 };
 
 export const Card: React.FC<CardProps> = ({
@@ -37,11 +37,11 @@ export const Card: React.FC<CardProps> = ({
   return (
     <Component
       className={clsx(
-        'relative rounded-lg bg-white transition-shadow duration-200',
+        'relative rounded-2xl bg-white/95 backdrop-blur transition-all duration-200',
         cardPadding[padding],
         cardShadow[shadow],
-        border && 'border border-gray-200',
-        hoverable && 'hover:shadow-lg',
+        border && 'border border-neutral-200/70',
+        hoverable && 'hover:shadow-medium',
         className
       )}
     >
@@ -56,19 +56,19 @@ interface CardSectionProps {
 }
 
 export const CardHeader: React.FC<CardSectionProps> = ({ children, className }) => (
-  <div className={clsx('flex flex-wrap items-center justify-between gap-2 pb-4', className)}>{children}</div>
+  <div className={clsx('mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200/60 pb-4', className)}>{children}</div>
 );
 
 export const CardTitle: React.FC<CardSectionProps> = ({ children, className }) => (
-  <h3 className={clsx('text-lg font-semibold text-gray-900', className)}>{children}</h3>
+  <h3 className={clsx('text-lg font-semibold text-neutral-800', className)}>{children}</h3>
 );
 
 export const CardBody: React.FC<CardSectionProps> = ({ children, className }) => (
-  <div className={clsx('space-y-4', className)}>{children}</div>
+  <div className={clsx('space-y-5 text-neutral-600', className)}>{children}</div>
 );
 
 export const CardFooter: React.FC<CardSectionProps> = ({ children, className }) => (
-  <div className={clsx('pt-4', className)}>{children}</div>
+  <div className={clsx('pt-6', className)}>{children}</div>
 );
 
 export default Card;

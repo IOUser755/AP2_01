@@ -50,35 +50,42 @@ const SidebarContent: React.FC = () => {
   }));
 
   return (
-    <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4">
-      <div className="flex h-16 shrink-0 items-center">
-        <Link to="/dashboard" className="flex items-center space-x-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-primary-600">
-            <span className="text-sm font-bold text-white">A2</span>
+    <div className="flex grow flex-col gap-y-8 overflow-y-auto border-r border-neutral-200/70 bg-white/90 px-8 pb-10 pt-8 backdrop-blur">
+      <div className="flex items-center justify-between">
+        <Link to="/dashboard" className="flex items-center space-x-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-brand-soft">
+            <span className="text-sm font-bold tracking-[0.18em]">A2</span>
           </div>
-          <span className="text-xl font-bold text-gray-900">AgentPay</span>
+          <div>
+            <span className="block text-sm font-semibold uppercase tracking-[0.32em] text-neutral-400">AgentPay</span>
+            <span className="block text-lg font-semibold text-neutral-800">Intelligence Hub</span>
+          </div>
         </Link>
+        <span className="hidden text-xs font-semibold uppercase tracking-[0.32em] text-neutral-300 lg:block">MENU</span>
       </div>
 
       <nav className="flex flex-1 flex-col">
-        <ul role="list" className="flex flex-1 flex-col gap-y-7">
+        <ul role="list" className="flex flex-1 flex-col gap-y-8">
           <li>
-            <ul role="list" className="-mx-2 space-y-1">
+            <ul role="list" className="-mx-2 space-y-2">
+              <li className="px-2">
+                <span className="section-label">Navigation</span>
+              </li>
               {items.map(item => (
                 <li key={item.name}>
                   <Link
                     to={item.href}
                     className={clsx(
                       item.current
-                        ? 'bg-primary-50 text-primary-700'
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-primary-700',
-                      'group flex items-center gap-x-3 rounded-md p-2 text-sm font-semibold leading-6'
+                        ? 'bg-brand-50/70 text-brand-700 shadow-brand-ring'
+                        : 'text-neutral-600 hover:bg-neutral-100/80 hover:text-brand-700',
+                      'group flex items-center gap-x-3 rounded-xl px-3 py-3 text-sm font-semibold leading-6 transition'
                     )}
                   >
                     <item.icon
                       className={clsx(
-                        item.current ? 'text-primary-700' : 'text-gray-400 group-hover:text-primary-700',
-                        'h-6 w-6 flex-shrink-0'
+                        item.current ? 'text-brand-700' : 'text-neutral-400 group-hover:text-brand-600',
+                        'h-5 w-5 flex-shrink-0'
                       )}
                       aria-hidden="true"
                     />
@@ -95,16 +102,16 @@ const SidebarContent: React.FC = () => {
           </li>
 
           <li className="mt-auto">
-            <div className="rounded-lg bg-gray-50 p-4">
-              <div className="flex items-center space-x-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-100">
-                  <span className="text-sm font-semibold text-primary-700">
+            <div className="surface-subtle">
+              <div className="flex items-center space-x-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-700">
+                  <span className="text-base font-semibold">
                     {tenant?.name ? tenant.name.charAt(0).toUpperCase() : 'A'}
                   </span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-gray-900">{tenant?.name ?? 'AgentPay Hub'}</p>
-                  <p className="truncate text-xs text-gray-500">{tenant?.plan ?? 'Free Plan'}</p>
+                  <p className="truncate text-sm font-semibold text-neutral-700">{tenant?.name ?? 'AgentPay Hub'}</p>
+                  <p className="truncate text-xs font-semibold uppercase tracking-[0.28em] text-neutral-400">{tenant?.plan ?? 'Free Plan'}</p>
                 </div>
               </div>
             </div>
@@ -165,7 +172,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => (
       </Dialog>
     </Transition.Root>
 
-    <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
+    <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-80 lg:flex-col">
       <SidebarContent />
     </div>
   </>

@@ -13,74 +13,78 @@ export const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
   const { actualTheme, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-primary-600">
-                <span className="text-sm font-bold text-white">A2</span>
-              </div>
-              <span className="text-xl font-bold text-gray-900">AgentPay Hub</span>
-            </Link>
-
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleTheme}
-                className="p-2"
-                title={`Switch to ${actualTheme === 'light' ? 'dark' : 'light'} mode`}
-                aria-label={`Switch to ${actualTheme === 'light' ? 'dark' : 'light'} mode`}
-              >
-                {actualTheme === 'light' ? <MoonIcon className="h-5 w-5" /> : <SunIcon className="h-5 w-5" />}
-              </Button>
-
-              <Link to="/login">
-                <Button variant="outline" size="sm">
-                  Sign In
-                </Button>
-              </Link>
-              <Link to="/register">
-                <Button variant="primary" size="sm">
-                  Get Started
-                </Button>
-              </Link>
+    <div className="min-h-screen bg-neutral-50 text-neutral-800">
+      <header className="border-b border-neutral-200/70 bg-white/95 shadow-brand-ring backdrop-blur">
+        <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-6 sm:px-8 lg:px-12">
+          <Link to="/" className="flex items-center space-x-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-brand-soft">
+              <span className="text-sm font-bold tracking-[0.18em]">A2</span>
             </div>
+            <div>
+              <span className="block text-xs font-semibold uppercase tracking-[0.32em] text-neutral-400">AgentPay</span>
+              <span className="block text-lg font-semibold text-neutral-800">Intelligence Hub</span>
+            </div>
+          </Link>
+
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="xs"
+              onClick={toggleTheme}
+              className="!p-2 rounded-full text-neutral-500 transition hover:bg-neutral-100"
+              title={`Switch to ${actualTheme === 'light' ? 'dark' : 'light'} mode`}
+              aria-label={`Switch to ${actualTheme === 'light' ? 'dark' : 'light'} mode`}
+            >
+              {actualTheme === 'light' ? <MoonIcon className="h-5 w-5" /> : <SunIcon className="h-5 w-5" />}
+            </Button>
+
+            <Link to="/login">
+              <Button variant="outline" size="sm">
+                Sign In
+              </Button>
+            </Link>
+            <Link to="/register">
+              <Button variant="primary" size="sm">
+                Get Started
+              </Button>
+            </Link>
           </div>
         </div>
       </header>
 
       <main className="flex-1">{children}</main>
 
-      <footer className="border-t border-gray-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="py-8">
-            <div className="flex flex-col items-center justify-between md:flex-row">
-              <div className="mb-4 flex items-center space-x-2 md:mb-0">
-                <div className="flex h-6 w-6 items-center justify-center rounded bg-gradient-to-br from-primary-500 to-primary-600">
-                  <span className="text-xs font-bold text-white">A2</span>
-                </div>
-                <span className="font-semibold text-gray-900">AgentPay Hub</span>
+      <footer className="border-t border-neutral-200/70 bg-white/95">
+        <div className="mx-auto max-w-6xl px-6 py-12 sm:px-8 lg:px-12">
+          <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-brand-soft">
+                <span className="text-xs font-bold tracking-[0.18em]">A2</span>
               </div>
-
-              <div className="flex space-x-6 text-sm text-gray-600">
-                <Link to="/privacy" className="hover:text-gray-900">
-                  Privacy Policy
-                </Link>
-                <Link to="/terms" className="hover:text-gray-900">
-                  Terms of Service
-                </Link>
-                <Link to="/support" className="hover:text-gray-900">
-                  Support
-                </Link>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-neutral-400">AgentPay</p>
+                <p className="text-sm font-semibold text-neutral-700">Modern finance enablement</p>
               </div>
             </div>
 
-            <div className="mt-4 border-t border-gray-200 pt-4">
-              <p className="text-center text-sm text-gray-500">© 2024 AgentPay Hub. All rights reserved.</p>
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-3 text-xs font-semibold uppercase tracking-[0.28em] text-neutral-400">
+              <Link to="/privacy" className="transition hover:text-brand-600">
+                Privacy Policy
+              </Link>
+              <Link to="/terms" className="transition hover:text-brand-600">
+                Terms of Service
+              </Link>
+              <Link to="/support" className="transition hover:text-brand-600">
+                Support
+              </Link>
             </div>
           </div>
+
+          <div className="section-divider" />
+
+          <p className="text-center text-xs font-semibold uppercase tracking-[0.28em] text-neutral-400">
+            © 2024 AgentPay Hub. All rights reserved.
+          </p>
         </div>
       </footer>
     </div>
