@@ -1,5 +1,5 @@
-import { useWebSocketContext } from '@context/WebSocketContext';
+import { useWebSocket as useWebSocketContext } from '@context/WebSocketContext';
 
-export function useWebSocket() {
+export const useWebSocket = () => {
   return useWebSocketContext();
-}
+};

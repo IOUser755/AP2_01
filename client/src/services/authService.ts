@@ -1,49 +1,64 @@
 import { apiClient } from './api';
+import type { ApiResponse } from './api';
 import type { AuthResponse, Tenant, User } from '@types/auth';
 
-interface LoginPayload {
-  email: string;
-  password: string;
-}
+const TOKEN_KEY = 'token';
+const REFRESH_TOKEN_KEY = 'refreshToken';
 
-interface RegisterPayload extends LoginPayload {
-  firstName: string;
-  lastName: string;
-  tenantName?: string;
-}
+const ensureAuthResponse = (response: ApiResponse<AuthResponse>) => {
+  if (!response.success || !response.data) {
+    throw new Error(response.message || 'Authentication request failed');
+  }
+  return response.data;
+};
 
 export const authService = {
-  async login(email: string, password: string): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>('/auth/login', { email, password });
-    if (!response.success || !response.data) {
-      throw new Error(response.message || 'Unable to login');
-    }
-    return response.data;
+  getToken(): string | null {
+    return localStorage.getItem(TOKEN_KEY);
   },
 
-  async register(payload: RegisterPayload): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>('/auth/register', payload);
-    if (!response.success || !response.data) {
-      throw new Error(response.message || 'Unable to register');
+  getRefreshToken(): string | null {
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
+  },
+
+  setSession(response: AuthResponse): void {
+    localStorage.setItem(TOKEN_KEY, response.token);
+    if (response.refreshToken) {
+      localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
     }
-    return response.data;
+  },
+
+  clearSession(): void {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+  },
+
+  async login(email: string, password: string): Promise<AuthResponse> {
+    const response = await apiClient.post<AuthResponse>('/auth/login', { email, password });
+    const data = ensureAuthResponse(response);
+    this.setSession(data);
+    return data;
+  },
+
+  async register(payload: Record<string, unknown>): Promise<AuthResponse> {
+    const response = await apiClient.post<AuthResponse>('/auth/register', payload);
+    const data = ensureAuthResponse(response);
+    this.setSession(data);
+    return data;
   },
 
   async getCurrentUser(): Promise<{ user: User; tenant: Tenant }> {
     const response = await apiClient.get<AuthResponse>('/auth/me');
-    if (!response.success || !response.data) {
-      throw new Error(response.message || 'Unable to fetch session');
-    }
-    return { user: response.data.user, tenant: response.data.tenant };
+    const data = ensureAuthResponse(response);
+    return { user: data.user, tenant: data.tenant };
   },
 
   async refreshToken(): Promise<AuthResponse> {
-    const refreshToken = localStorage.getItem('refreshToken');
+    const refreshToken = this.getRefreshToken();
     const response = await apiClient.post<AuthResponse>('/auth/refresh', { refreshToken });
-    if (!response.success || !response.data) {
-      throw new Error(response.message || 'Unable to refresh session');
-    }
-    return response.data;
+    const data = ensureAuthResponse(response);
+    this.setSession(data);
+    return data;
   },
 
   async updateProfile(userData: Partial<User>): Promise<User> {
@@ -54,7 +69,19 @@ export const authService = {
     return response.data.user;
   },
 
-  logout(): void {
-    void apiClient.post('/auth/logout');
+  async updateTenant(tenantData: Partial<Tenant>): Promise<Tenant> {
+    const response = await apiClient.patch<{ tenant: Tenant }>('/auth/tenant', tenantData);
+    if (!response.success || !response.data) {
+      throw new Error(response.message || 'Unable to update tenant');
+    }
+    return response.data.tenant;
+  },
+
+  async logout(): Promise<void> {
+    try {
+      await apiClient.post('/auth/logout');
+    } finally {
+      this.clearSession();
+    }
   },
 };

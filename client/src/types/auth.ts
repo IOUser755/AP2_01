@@ -2,6 +2,7 @@ export type UserRole = 'SUPER_ADMIN' | 'TENANT_ADMIN' | 'DEVELOPER' | 'VIEWER';
 
 export interface User {
   id: string;
+  _id?: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -14,6 +15,7 @@ export interface User {
 
 export interface Tenant {
   id: string;
+  _id?: string;
   name: string;
   domain: string;
   subdomain: string;
