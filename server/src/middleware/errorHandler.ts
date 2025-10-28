@@ -2,7 +2,36 @@ import { Request, Response, NextFunction } from 'express';
 import { MongoError } from 'mongodb';
 import { logger } from '../config/logger.js';
 import config from '../config/keys.js';
+
 import { AppError, CustomError } from '../utils/errors.js';
+
+
+import { AppError, CustomError } from '../utils/errors.js';
+
+
+export interface AppError extends Error {
+  statusCode?: number;
+  isOperational?: boolean;
+  code?: string | number;
+  errors?: any[];
+}
+
+export class CustomError extends Error implements AppError {
+  statusCode: number;
+  isOperational: boolean;
+  code?: string;
+  errors?: any[];
+
+  constructor(message: string, statusCode = 500, code?: string) {
+    super(message);
+    this.statusCode = statusCode;
+    this.isOperational = true;
+    this.code = code;
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
+
+
 
 interface ErrorResponse {
   success: false;

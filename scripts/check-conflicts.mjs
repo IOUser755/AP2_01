@@ -1,7 +1,11 @@
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
-const conflictMarkers = ['<<<<<<<', '=======', '>>>>>>>'];
+const conflictPatterns = [
+  /<<<<<<< /,
+  /=======/,
+  />>>>>>> /
+];
 
 const files = execSync('git ls-files', { encoding: 'utf8' })
   .split('\n')
@@ -15,15 +19,18 @@ for (const file of files) {
     continue;
   }
   const content = readFileSync(file, 'utf8');
-  if (conflictMarkers.some(marker => content.includes(marker))) {
-    offenders.push(file);
+  for (const pattern of conflictPatterns) {
+    if (pattern.test(content)) {
+      offenders.push({ file, pattern: pattern.source });
+      break;
+    }
   }
 }
 
 if (offenders.length > 0) {
   console.error('Merge conflict markers detected:');
-  for (const file of offenders) {
-    console.error(` - ${file}`);
+  for (const offender of offenders) {
+    console.error(` - ${offender.file} (matched /${offender.pattern}/)`);
   }
   process.exitCode = 1;
 } else {

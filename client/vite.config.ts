@@ -12,9 +12,20 @@ export default defineConfig({
       '@services': path.resolve(__dirname, './src/services'),
       '@hooks': path.resolve(__dirname, './src/hooks'),
       '@utils': path.resolve(__dirname, './src/utils'),
+
       '@types': path.resolve(__dirname, './src/types'),
       '@context': path.resolve(__dirname, './src/context'),
       '@assets': path.resolve(__dirname, './src/assets'),
+
+
+      '@types': path.resolve(__dirname, './src/types'),
+      '@context': path.resolve(__dirname, './src/context'),
+      '@assets': path.resolve(__dirname, './src/assets'),
+
+      '@context': path.resolve(__dirname, './src/context'),
+      '@types': path.resolve(__dirname, './src/types'),
+
+
     },
   },
   server: {
@@ -26,10 +37,17 @@ export default defineConfig({
       },
       '/socket.io': {
         target: 'http://localhost:5000',
+
+
+
+        changeOrigin: true,
+
+
         ws: true,
       },
     },
   },
+
   build: {
     outDir: 'dist',
     sourcemap: true,
@@ -51,4 +69,5 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
   },
+
 });
