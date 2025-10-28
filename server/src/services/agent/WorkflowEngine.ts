@@ -1,6 +1,6 @@
 import { IWorkflowStep } from '../../models/Agent.js';
 import { logger } from '../../config/logger.js';
-import { CustomError } from '../../middleware/errorHandler.js';
+import { CustomError } from '../../utils/errors.js';
 
 export interface WorkflowValidationResult {
   isValid: boolean;

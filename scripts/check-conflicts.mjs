@@ -15,6 +15,9 @@ const files = execSync('git ls-files', { encoding: 'utf8' })
 const offenders = [];
 
 for (const file of files) {
+  if (file === 'scripts/check-conflicts.mjs') {
+    continue;
+  }
   const content = readFileSync(file, 'utf8');
   for (const pattern of conflictPatterns) {
     if (pattern.test(content)) {

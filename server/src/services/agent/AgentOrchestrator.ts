@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 import { Agent, IAgent, IWorkflowStep } from '../../models/Agent.js';
 import { User, IUser } from '../../models/User.js';
 import { logger } from '../../config/logger.js';
-import { CustomError } from '../../middleware/errorHandler.js';
+import { CustomError } from '../../utils/errors.js';
 import ToolRegistry from './ToolRegistry.js';
 import WorkflowEngine from './WorkflowEngine.js';
 import server from '../../server.js';
