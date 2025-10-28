@@ -8,6 +8,7 @@ import type {
 } from '@types/transaction';
 
 export interface TransactionFilters {
+  search?: string;
   status?: string;
   type?: string;
   paymentProvider?: string;
