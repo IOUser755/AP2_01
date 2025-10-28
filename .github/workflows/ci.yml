@@ -16,16 +16,28 @@ jobs:
     
     steps:
       - name: Checkout code
+
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+
         uses: actions/checkout@v5
       
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v6
+
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       
       - name: Install dependencies
         run: npm ci
+
+
+      - name: Check for unresolved merge markers
+        run: npm run check:conflicts
+
       
       - name: Lint client
         run: cd client && npm run lint
@@ -50,6 +62,7 @@ jobs:
       
       - name: Build server
         run: cd server && npm run build
+
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
@@ -103,3 +116,4 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run build
+

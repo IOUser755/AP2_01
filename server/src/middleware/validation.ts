@@ -1,7 +1,40 @@
 import { Request, Response, NextFunction } from 'express';
+
+import { validationResult } from 'express-validator';
+import Joi from 'joi';
+import { CustomError } from '../utils/errors.js';
+import { logger } from '../config/logger.js';
+
+export const handleValidationResult = (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): void => {
+  const errors = validationResult(req);
+
+  if (errors.isEmpty()) {
+    next();
+    return;
+  }
+
+  const extractedErrors = errors.array().map(err => `${err.param}: ${err.msg}`);
+
+  logger.warn('Validation failed', {
+    errors: extractedErrors,
+    path: req.path,
+    method: req.method,
+    userId: (req as any).user?._id,
+    tenantId: (req as any).tenant?._id,
+  });
+
+  next(new CustomError(`Validation failed: ${extractedErrors.join(', ')}`, 400, 'VALIDATION_ERROR'));
+};
+
+
 import Joi from 'joi';
 import { CustomError } from './errorHandler.js';
 import { logger } from '../config/logger.js';
+
 
 interface ValidationOptions {
   abortEarly?: boolean;
@@ -9,10 +42,14 @@ interface ValidationOptions {
   stripUnknown?: boolean;
 }
 
+
+export const validateSchema = (
+
 /**
  * Joi validation middleware factory
  */
 const validate = (
+
   schema: {
     body?: Joi.ObjectSchema;
     query?: Joi.ObjectSchema;
@@ -21,7 +58,11 @@ const validate = (
   },
   options: ValidationOptions = {}
 ) => {
+
+  return (req: Request, _res: Response, next: NextFunction): void => {
+
   return (req: Request, res: Response, next: NextFunction): void => {
+
     const validationOptions: Joi.ValidationOptions = {
       abortEarly: options.abortEarly ?? false,
       allowUnknown: options.allowUnknown ?? false,
@@ -30,7 +71,9 @@ const validate = (
 
     const validationErrors: string[] = [];
 
-    // Validate request body
+
+
+  
     if (schema.body) {
       const { error, value } = schema.body.validate(req.body, validationOptions);
       if (error) {
@@ -40,7 +83,7 @@ const validate = (
       }
     }
 
-    // Validate query parameters
+
     if (schema.query) {
       const { error, value } = schema.query.validate(req.query, validationOptions);
       if (error) {
@@ -50,7 +93,7 @@ const validate = (
       }
     }
 
-    // Validate route parameters
+
     if (schema.params) {
       const { error, value } = schema.params.validate(req.params, validationOptions);
       if (error) {
@@ -60,7 +103,7 @@ const validate = (
       }
     }
 
-    // Validate headers
+
     if (schema.headers) {
       const { error } = schema.headers.validate(req.headers, validationOptions);
       if (error) {
@@ -69,6 +112,24 @@ const validate = (
     }
 
     if (validationErrors.length > 0) {
+
+      logger.warn('Schema validation failed', {
+        errors: validationErrors,
+        path: req.path,
+        method: req.method,
+        userId: (req as any).user?._id,
+        tenantId: (req as any).tenant?._id,
+      });
+
+      next(
+        new CustomError(
+          `Validation failed: ${validationErrors.join(', ')}`,
+          400,
+          'VALIDATION_ERROR'
+        )
+      );
+      return;
+
       logger.warn('Validation failed', {
         errors: validationErrors,
         path: req.path,
@@ -82,11 +143,20 @@ const validate = (
         400,
         'VALIDATION_ERROR'
       ));
+
     }
 
     next();
   };
 };
+
+
+export const commonSchemas = {
+  objectId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).message('Invalid ObjectId format'),
+  email: Joi.string().email().lowercase().trim(),
+  password: Joi.string()
+    .min(8)
+    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
 
 /**
  * Common Joi schemas
@@ -95,6 +165,7 @@ export const commonSchemas = {
   objectId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).message('Invalid ObjectId format'),
   email: Joi.string().email().lowercase().trim(),
   password: Joi.string().min(8).pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+
     .message('Password must contain at least 8 characters with uppercase, lowercase, number and special character'),
   url: Joi.string().uri(),
   phone: Joi.string().pattern(/^\+?[1-9]\d{1,14}$/).message('Invalid phone number format'),
@@ -112,9 +183,7 @@ export const commonSchemas = {
   },
 };
 
-/**
- * Authentication schemas
- */
+
 export const authSchemas = {
   register: {
     body: Joi.object({
@@ -122,8 +191,14 @@ export const authSchemas = {
       lastName: Joi.string().trim().min(2).max(50).required(),
       email: commonSchemas.email.required(),
       password: commonSchemas.password.required(),
+
+      confirmPassword: Joi.string().valid(Joi.ref('password')).required().messages({
+        'any.only': 'Passwords do not match',
+      }),
+
       confirmPassword: Joi.string().valid(Joi.ref('password')).required()
         .messages({ 'any.only': 'Passwords do not match' }),
+
       tenantName: Joi.string().trim().min(2).max(100).required(),
       domain: Joi.string().trim().domain().optional(),
     }),
@@ -161,14 +236,62 @@ export const authSchemas = {
   },
 };
 
-/**
- * Agent schemas
- */
+
 export const agentSchemas = {
   create: {
     body: Joi.object({
       name: Joi.string().trim().min(2).max(100).required(),
       description: Joi.string().trim().max(500).optional(),
+
+      type: Joi.string()
+        .valid('PAYMENT', 'WORKFLOW', 'DATA_PROCESSOR', 'NOTIFICATION', 'CUSTOM')
+        .required(),
+      templateId: commonSchemas.objectId.optional(),
+      configuration: Joi.object({
+        workflow: Joi.array()
+          .items(
+            Joi.object({
+              id: Joi.string().required(),
+              type: Joi.string().valid('TRIGGER', 'ACTION', 'CONDITION', 'APPROVAL').required(),
+              name: Joi.string().required(),
+              description: Joi.string().optional(),
+              toolType: Joi.string().required(),
+              parameters: Joi.object().default({}),
+              position: Joi.object({
+                x: Joi.number().required(),
+                y: Joi.number().required(),
+              }).required(),
+              connections: Joi.object().default({}),
+              errorHandling: Joi.object({
+                strategy: Joi.string().valid('STOP', 'CONTINUE', 'RETRY', 'ROLLBACK').default('STOP'),
+                maxRetries: Joi.number().min(0).max(10).default(3),
+                fallbackStepId: Joi.string().optional(),
+              }).default({}),
+              timeout: Joi.number().min(1000).max(300000).default(30000),
+            })
+          )
+          .min(1)
+          .required(),
+        tools: Joi.array()
+          .items(
+            Joi.object({
+              type: Joi.string().required(),
+              name: Joi.string().required(),
+              config: Joi.object().default({}),
+              enabled: Joi.boolean().default(true),
+            })
+          )
+          .default([]),
+        triggers: Joi.array()
+          .items(
+            Joi.object({
+              type: Joi.string().valid('WEBHOOK', 'SCHEDULE', 'MANUAL', 'EVENT').required(),
+              config: Joi.object().required(),
+              enabled: Joi.boolean().default(true),
+            })
+          )
+          .default([]),
+
       type: Joi.string().valid('PAYMENT', 'WORKFLOW', 'DATA_PROCESSOR', 'NOTIFICATION', 'CUSTOM').required(),
       templateId: commonSchemas.objectId.optional(),
       configuration: Joi.object({
@@ -208,6 +331,7 @@ export const agentSchemas = {
             enabled: Joi.boolean().default(true),
           })
         ).default([]),
+
         variables: Joi.object().default({}),
         constraints: Joi.object({
           budgetLimit: Joi.object({
@@ -227,12 +351,23 @@ export const agentSchemas = {
           onComplete: Joi.boolean().default(true),
           onError: Joi.boolean().default(true),
           onApprovalNeeded: Joi.boolean().default(true),
+
+          channels: Joi.array()
+            .items(
+              Joi.object({
+                type: Joi.string().valid('EMAIL', 'WEBHOOK', 'SLACK', 'SMS').required(),
+                config: Joi.object().required(),
+              })
+            )
+            .default([]),
+
           channels: Joi.array().items(
             Joi.object({
               type: Joi.string().valid('EMAIL', 'WEBHOOK', 'SLACK', 'SMS').required(),
               config: Joi.object().required(),
             })
           ).default([]),
+
         }).required(),
       }).required(),
       metadata: Joi.object({
@@ -271,6 +406,14 @@ export const agentSchemas = {
       type: Joi.string().valid('PAYMENT', 'WORKFLOW', 'DATA_PROCESSOR', 'NOTIFICATION', 'CUSTOM').optional(),
       category: Joi.string().optional(),
       search: Joi.string().trim().optional(),
+
+      tags: Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string())).optional(),
+    }),
+  },
+};
+
+export default handleValidationResult;
+
       tags: Joi.alternatives().try(
         Joi.string(),
         Joi.array().items(Joi.string())
@@ -432,3 +575,4 @@ export const mandateSchemas = {
 };
 
 export default validate;
+

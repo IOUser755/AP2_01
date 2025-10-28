@@ -2,7 +2,11 @@ import { Types } from 'mongoose';
 import { Agent, IAgent, IWorkflowStep } from '../../models/Agent.js';
 import { User, IUser } from '../../models/User.js';
 import { logger } from '../../config/logger.js';
+
+import { CustomError } from '../../utils/errors.js';
+
 import { CustomError } from '../../middleware/errorHandler.js';
+
 import ToolRegistry from './ToolRegistry.js';
 import WorkflowEngine from './WorkflowEngine.js';
 import server from '../../server.js';
@@ -214,7 +218,36 @@ class AgentOrchestrator {
 
     try {
       // Validate workflow
+
+      const validation = this.workflowEngine.validateWorkflow(
+        agent.configuration.workflow
+      );
+
+      if (!validation.isValid) {
+        logger.error('Workflow validation failed', {
+          agentId: agent._id.toString(),
+          executionId: context.executionId,
+          errors: validation.errors,
+        });
+
+        throw new CustomError(
+          `Workflow validation failed: ${validation.errors.join('; ')}`,
+          400,
+          'WORKFLOW_INVALID'
+        );
+      }
+
+      if (validation.warnings.length > 0 || validation.suggestions.length > 0) {
+        logger.warn('Workflow validation warnings', {
+          agentId: agent._id.toString(),
+          executionId: context.executionId,
+          warnings: validation.warnings,
+          suggestions: validation.suggestions,
+        });
+      }
+
       this.workflowEngine.validateWorkflow(agent.configuration.workflow);
+
 
       // Get execution order
       const executionOrder = this.workflowEngine.getExecutionOrder(
