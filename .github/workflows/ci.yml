@@ -26,6 +26,9 @@ jobs:
       
       - name: Install dependencies
         run: npm ci
+
+      - name: Check for unresolved merge markers
+        run: npm run check:conflicts
       
       - name: Lint client
         run: cd client && npm run lint

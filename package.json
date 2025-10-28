@@ -22,6 +22,7 @@
     "lint:client": "cd client && npm run lint",
     "lint:server": "cd server && npm run lint",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "check:conflicts": "node scripts/check-conflicts.mjs",
     "typecheck": "npm run typecheck:client && npm run typecheck:server",
     "typecheck:client": "cd client && npm run type-check",
     "typecheck:server": "cd server && npm run type-check",
