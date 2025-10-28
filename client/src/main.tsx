@@ -9,7 +9,6 @@ import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
 import { AuthProvider } from '@context/AuthContext';
 import { ThemeProvider } from '@context/ThemeContext';
-import { WebSocketProvider } from '@context/WebSocketContext';
 
 import './index.css';
 
@@ -33,33 +32,31 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <BrowserRouter>
           <ThemeProvider>
             <AuthProvider>
-              <WebSocketProvider>
-                <App />
-                <Toaster
-                  position="top-right"
-                  toastOptions={{
-                    duration: 4000,
-                    style: {
-                      background: '#363636',
-                      color: '#fff',
+              <App />
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  duration: 4000,
+                  style: {
+                    background: '#363636',
+                    color: '#fff',
+                  },
+                  success: {
+                    duration: 3000,
+                    iconTheme: {
+                      primary: '#22c55e',
+                      secondary: '#fff',
                     },
-                    success: {
-                      duration: 3000,
-                      iconTheme: {
-                        primary: '#22c55e',
-                        secondary: '#fff',
-                      },
+                  },
+                  error: {
+                    duration: 5000,
+                    iconTheme: {
+                      primary: '#ef4444',
+                      secondary: '#fff',
                     },
-                    error: {
-                      duration: 5000,
-                      iconTheme: {
-                        primary: '#ef4444',
-                        secondary: '#fff',
-                      },
-                    },
-                  }}
-                />
-              </WebSocketProvider>
+                  },
+                }}
+              />
             </AuthProvider>
           </ThemeProvider>
         </BrowserRouter>

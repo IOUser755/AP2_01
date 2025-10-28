@@ -78,7 +78,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
   }
 }
 
-interface AuthContextType extends AuthState {
+export interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   register: (userData: Record<string, unknown>) => Promise<void>;
   logout: () => Promise<void>;

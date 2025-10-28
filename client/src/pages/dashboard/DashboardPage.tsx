@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   RocketLaunchIcon,
@@ -24,11 +24,13 @@ import {
 
 import { useAuth } from '@hooks/useAuth';
 import { useAgents } from '@hooks/useAgents';
-import { useWebSocket } from '@context/WebSocketContext';
+import { useWebSocket } from '@hooks/useWebSocket';
 import { Card, CardHeader, CardTitle, CardBody } from '@components/common/Card';
 import { Button } from '@components/common/Button';
 import { Badge } from '@components/common/Badge';
 import { LoadingSpinner } from '@components/common/LoadingSpinner';
+import { AgentExecutionMonitor } from '@components/agent/AgentExecutionMonitor';
+import { TransactionMonitor } from '@components/transaction/TransactionMonitor';
 
 const transactionData = [
   { name: 'Mon', transactions: 12 },
@@ -48,11 +50,30 @@ const agentTypeData = [
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
-  const { isConnected } = useWebSocket();
+  const { connected } = useWebSocket();
   const { data: agentsData, isLoading: agentsLoading } = useAgents({ limit: 5 });
 
   const totalAgents = agentsData?.pagination?.total ?? agentsData?.data?.length ?? 0;
   const recentAgents = agentsData?.data ?? [];
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (recentAgents.length === 0) {
+      if (selectedAgentId !== null) {
+        setSelectedAgentId(null);
+      }
+      return;
+    }
+
+    const exists = recentAgents.some(
+      agent => (agent._id ?? agent.id) === selectedAgentId
+    );
+
+    if (!exists) {
+      const firstAgent = recentAgents[0];
+      setSelectedAgentId(firstAgent._id ?? firstAgent.id ?? null);
+    }
+  }, [recentAgents, selectedAgentId]);
 
   const stats = [
     {
@@ -94,8 +115,8 @@ export const DashboardPage: React.FC = () => {
         </div>
         <div className="mt-4 lg:mt-0 flex items-center space-x-3">
           <div className="flex items-center space-x-2">
-            <span className={`h-2 w-2 rounded-full ${isConnected ? 'bg-success-500' : 'bg-error-500'}`} />
-            <span className="text-xs text-gray-500">{isConnected ? 'Connected' : 'Disconnected'}</span>
+            <span className={`h-2 w-2 rounded-full ${connected ? 'bg-success-500' : 'bg-error-500'}`} />
+            <span className="text-xs text-gray-500">{connected ? 'Connected' : 'Disconnected'}</span>
           </div>
           <Link to="/agents/new">
             <Button>
@@ -198,6 +219,11 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TransactionMonitor />
+        <AgentExecutionMonitor agentId={selectedAgentId} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -214,38 +240,50 @@ export const DashboardPage: React.FC = () => {
               </div>
             ) : recentAgents.length > 0 ? (
               <div className="space-y-4">
-                {recentAgents.slice(0, 5).map(agent => (
-                  <div key={agent._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className="h-8 w-8 bg-primary-100 rounded-lg flex items-center justify-center">
-                        <RocketLaunchIcon className="h-4 w-4 text-primary-600" />
+                {recentAgents.slice(0, 5).map(agent => {
+                  const agentId = agent._id ?? agent.id;
+                  return (
+                    <div key={agentId} className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100">
+                          <RocketLaunchIcon className="h-4 w-4 text-primary-600" />
+                        </div>
+                        <div>
+                          <Link
+                            to={`/agents/${agentId}`}
+                            className="text-sm font-medium text-gray-900 hover:text-primary-600"
+                          >
+                            {agent.name}
+                          </Link>
+                          <p className="text-xs text-gray-500 capitalize">{agent.type.toLowerCase()}</p>
+                        </div>
                       </div>
-                      <div>
-                        <Link
-                          to={`/agents/${agent._id}`}
-                          className="text-sm font-medium text-gray-900 hover:text-primary-600"
+                      <div className="flex items-center gap-3">
+                        <Badge
+                          variant={
+                            agent.status === 'ACTIVE'
+                              ? 'success'
+                              : agent.status === 'DRAFT'
+                              ? 'warning'
+                              : agent.status === 'ERROR'
+                              ? 'error'
+                              : 'gray'
+                          }
+                          size="sm"
                         >
-                          {agent.name}
-                        </Link>
-                        <p className="text-xs text-gray-500 capitalize">{agent.type.toLowerCase()}</p>
+                          {agent.status}
+                        </Badge>
+                        <Button
+                          size="sm"
+                          variant={selectedAgentId === agentId ? 'primary' : 'outline'}
+                          onClick={() => setSelectedAgentId(agentId)}
+                        >
+                          {selectedAgentId === agentId ? 'Monitoring' : 'Monitor'}
+                        </Button>
                       </div>
                     </div>
-                    <Badge
-                      variant={
-                        agent.status === 'ACTIVE'
-                          ? 'success'
-                          : agent.status === 'DRAFT'
-                          ? 'warning'
-                          : agent.status === 'ERROR'
-                          ? 'error'
-                          : 'gray'
-                      }
-                      size="sm"
-                    >
-                      {agent.status}
-                    </Badge>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-8">
