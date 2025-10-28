@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
 import { agentService } from '@services/agentService';
-import type { AgentTemplate, CreateAgentData } from '@types/agent';
+import type { Agent, CreateAgentData } from '@types/agent';
 import type { AgentFilters, ExecutionFilters } from '@services/agentService';
 
 const QUERY_KEYS = {
@@ -48,8 +48,18 @@ export const useUpdateAgent = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<CreateAgentData> }) =>
-      agentService.updateAgent(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Partial<CreateAgentData> & { status?: Agent['status'] };
+    }) => {
+      if (data.status) {
+        return agentService.updateStatus(id, data.status);
+      }
+      return agentService.updateAgent(id, data);
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.agents });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.agent(variables.id) });
@@ -143,7 +153,7 @@ export const useAgentTemplates = (filters?: {
   page?: number;
   limit?: number;
 }) => {
-  return useQuery<AgentTemplate[]>({
+  return useQuery({
     queryKey: [...QUERY_KEYS.templates, filters],
     queryFn: () => agentService.getTemplates(filters),
     staleTime: 1000 * 60 * 10,
