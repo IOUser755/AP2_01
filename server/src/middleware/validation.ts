@@ -31,9 +31,11 @@ export const handleValidationResult = (
 };
 
 
+
 import Joi from 'joi';
 import { CustomError } from './errorHandler.js';
 import { logger } from '../config/logger.js';
+
 
 
 interface ValidationOptions {
@@ -45,10 +47,14 @@ interface ValidationOptions {
 
 export const validateSchema = (
 
+
+export const validateSchema = (
+
 /**
  * Joi validation middleware factory
  */
 const validate = (
+
 
   schema: {
     body?: Joi.ObjectSchema;
@@ -61,7 +67,11 @@ const validate = (
 
   return (req: Request, _res: Response, next: NextFunction): void => {
 
+
+  return (req: Request, _res: Response, next: NextFunction): void => {
+
   return (req: Request, res: Response, next: NextFunction): void => {
+
 
     const validationOptions: Joi.ValidationOptions = {
       abortEarly: options.abortEarly ?? false,
@@ -72,8 +82,6 @@ const validate = (
     const validationErrors: string[] = [];
 
 
-
-  
     if (schema.body) {
       const { error, value } = schema.body.validate(req.body, validationOptions);
       if (error) {
@@ -130,6 +138,7 @@ const validate = (
       );
       return;
 
+
       logger.warn('Validation failed', {
         errors: validationErrors,
         path: req.path,
@@ -143,6 +152,7 @@ const validate = (
         400,
         'VALIDATION_ERROR'
       ));
+
 
     }
 
@@ -158,6 +168,7 @@ export const commonSchemas = {
     .min(8)
     .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
 
+
 /**
  * Common Joi schemas
  */
@@ -165,6 +176,7 @@ export const commonSchemas = {
   objectId: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).message('Invalid ObjectId format'),
   email: Joi.string().email().lowercase().trim(),
   password: Joi.string().min(8).pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+
 
     .message('Password must contain at least 8 characters with uppercase, lowercase, number and special character'),
   url: Joi.string().uri(),
@@ -196,8 +208,14 @@ export const authSchemas = {
         'any.only': 'Passwords do not match',
       }),
 
+
+      confirmPassword: Joi.string().valid(Joi.ref('password')).required().messages({
+        'any.only': 'Passwords do not match',
+      }),
+
       confirmPassword: Joi.string().valid(Joi.ref('password')).required()
         .messages({ 'any.only': 'Passwords do not match' }),
+
 
       tenantName: Joi.string().trim().min(2).max(100).required(),
       domain: Joi.string().trim().domain().optional(),
@@ -292,6 +310,7 @@ export const agentSchemas = {
           )
           .default([]),
 
+
       type: Joi.string().valid('PAYMENT', 'WORKFLOW', 'DATA_PROCESSOR', 'NOTIFICATION', 'CUSTOM').required(),
       templateId: commonSchemas.objectId.optional(),
       configuration: Joi.object({
@@ -332,6 +351,7 @@ export const agentSchemas = {
           })
         ).default([]),
 
+
         variables: Joi.object().default({}),
         constraints: Joi.object({
           budgetLimit: Joi.object({
@@ -351,7 +371,6 @@ export const agentSchemas = {
           onComplete: Joi.boolean().default(true),
           onError: Joi.boolean().default(true),
           onApprovalNeeded: Joi.boolean().default(true),
-
           channels: Joi.array()
             .items(
               Joi.object({
@@ -360,14 +379,6 @@ export const agentSchemas = {
               })
             )
             .default([]),
-
-          channels: Joi.array().items(
-            Joi.object({
-              type: Joi.string().valid('EMAIL', 'WEBHOOK', 'SLACK', 'SMS').required(),
-              config: Joi.object().required(),
-            })
-          ).default([]),
-
         }).required(),
       }).required(),
       metadata: Joi.object({
@@ -406,173 +417,9 @@ export const agentSchemas = {
       type: Joi.string().valid('PAYMENT', 'WORKFLOW', 'DATA_PROCESSOR', 'NOTIFICATION', 'CUSTOM').optional(),
       category: Joi.string().optional(),
       search: Joi.string().trim().optional(),
-
       tags: Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string())).optional(),
     }),
   },
 };
 
 export default handleValidationResult;
-
-      tags: Joi.alternatives().try(
-        Joi.string(),
-        Joi.array().items(Joi.string())
-      ).optional(),
-    }),
-  },
-};
-
-/**
- * Transaction schemas
- */
-export const transactionSchemas = {
-  create: {
-    body: Joi.object({
-      type: Joi.string().valid('PAYMENT', 'REFUND', 'TRANSFER', 'SETTLEMENT', 'AUTHORIZATION', 'CAPTURE').required(),
-      amount: Joi.object({
-        value: commonSchemas.amount.required(),
-        currency: commonSchemas.currency.required(),
-        precision: Joi.number().integer().min(0).max(8).default(2),
-      }).required(),
-      paymentMethod: Joi.object({
-        type: Joi.string().valid('CARD', 'BANK_TRANSFER', 'CRYPTO', 'DIGITAL_WALLET', 'CASH').required(),
-        provider: Joi.string().valid('STRIPE', 'COINBASE', 'PLAID', 'BANK_API', 'CUSTOM').required(),
-        methodId: Joi.string().required(),
-        details: Joi.object().default({}),
-      }).required(),
-      parties: Joi.object({
-        payer: Joi.object({
-          type: Joi.string().valid('USER', 'AGENT', 'EXTERNAL').required(),
-          id: commonSchemas.objectId.optional(),
-          name: Joi.string().required(),
-          email: commonSchemas.email.optional(),
-          address: Joi.object().optional(),
-        }).required(),
-        payee: Joi.object({
-          type: Joi.string().valid('MERCHANT', 'USER', 'PLATFORM', 'EXTERNAL').required(),
-          id: commonSchemas.objectId.optional(),
-          name: Joi.string().required(),
-          email: commonSchemas.email.optional(),
-          merchantId: Joi.string().optional(),
-          address: Joi.object().optional(),
-        }).required(),
-      }).required(),
-      metadata: Joi.object({
-        description: Joi.string().max(500).required(),
-        reference: Joi.string().optional(),
-        invoiceId: Joi.string().optional(),
-        orderId: Joi.string().optional(),
-        tags: Joi.array().items(Joi.string()).default([]),
-      }).required(),
-    }),
-  },
-  update: {
-    params: {
-      id: commonSchemas.objectId.required(),
-    },
-    body: Joi.object({
-      status: Joi.string().valid('PENDING', 'PROCESSING', 'AUTHORIZED', 'CAPTURED', 'COMPLETED', 'FAILED', 'CANCELLED', 'REFUNDED', 'DISPUTED').optional(),
-      metadata: Joi.object().optional(),
-    }),
-  },
-  list: {
-    query: Joi.object({
-      ...commonSchemas.pagination,
-      status: Joi.string().optional(),
-      type: Joi.string().optional(),
-      agentId: commonSchemas.objectId.optional(),
-      ...commonSchemas.dateRange,
-      minAmount: Joi.number().positive().optional(),
-      maxAmount: Joi.number().positive().optional(),
-      currency: commonSchemas.currency.optional(),
-    }),
-  },
-};
-
-/**
- * Mandate schemas
- */
-export const mandateSchemas = {
-  create: {
-    body: Joi.object({
-      type: Joi.string().valid('INTENT', 'CART', 'PAYMENT', 'APPROVAL', 'CANCELLATION').required(),
-      content: Joi.object({
-        intent: Joi.object({
-          action: Joi.string().required(),
-          description: Joi.string().max(1000).required(),
-          context: Joi.object().default({}),
-        }).required(),
-        transaction: Joi.object({
-          amount: Joi.object({
-            value: commonSchemas.amount.required(),
-            currency: commonSchemas.currency.required(),
-          }).optional(),
-          recipient: Joi.object({
-            type: Joi.string().valid('MERCHANT', 'USER', 'AGENT', 'EXTERNAL').required(),
-            id: Joi.string().optional(),
-            name: Joi.string().required(),
-            address: Joi.object().optional(),
-          }).optional(),
-          items: Joi.array().items(
-            Joi.object({
-              id: Joi.string().required(),
-              name: Joi.string().required(),
-              quantity: Joi.number().min(1).required(),
-              unitPrice: Joi.number().min(0).required(),
-              totalPrice: Joi.number().min(0).required(),
-              metadata: Joi.object().optional(),
-            })
-          ).optional(),
-        }).optional(),
-        authorization: Joi.object({
-          maxAmount: Joi.object({
-            value: commonSchemas.amount.required(),
-            currency: commonSchemas.currency.required(),
-          }).optional(),
-          validUntil: Joi.date().greater('now').optional(),
-          validFrom: Joi.date().optional(),
-          requiresApproval: Joi.boolean().default(false),
-          approvalLevel: Joi.string().valid('USER', 'ADMIN', 'SYSTEM').default('USER'),
-        }).required(),
-        compliance: Joi.object({
-          amlCheck: Joi.boolean().default(false),
-          sanctions: Joi.boolean().default(false),
-          fraudCheck: Joi.boolean().default(false),
-          riskScore: Joi.number().min(0).max(100).optional(),
-          complianceNotes: Joi.string().optional(),
-        }).required(),
-      }).required(),
-      metadata: Joi.object({
-        source: Joi.string().valid('USER', 'AGENT', 'SYSTEM', 'API').required(),
-        tags: Joi.array().items(Joi.string()).default([]),
-      }).required(),
-      autoExecute: Joi.boolean().default(false),
-      expiresAt: Joi.date().greater('now').optional(),
-    }),
-  },
-  approve: {
-    params: {
-      id: commonSchemas.objectId.required(),
-    },
-    body: Joi.object({
-      notes: Joi.string().optional(),
-    }),
-  },
-  execute: {
-    params: {
-      id: commonSchemas.objectId.required(),
-    },
-    body: Joi.object({
-      executionResult: Joi.object({
-        success: Joi.boolean().required(),
-        transactionId: Joi.string().optional(),
-        errorCode: Joi.string().optional(),
-        errorMessage: Joi.string().optional(),
-        metadata: Joi.object().optional(),
-      }).required(),
-    }),
-  },
-};
-
-export default validate;
-

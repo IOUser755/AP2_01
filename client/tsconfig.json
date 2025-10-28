@@ -25,7 +25,12 @@
       "@types/*": ["./src/types/*"],
       "@assets/*": ["./src/assets/*"]
 
+
+      "@types/*": ["./src/types/*"],
+      "@assets/*": ["./src/assets/*"]
+
       "@types/*": ["./src/types/*"]
+
 
     }
   },

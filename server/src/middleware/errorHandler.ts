@@ -4,7 +4,10 @@ import { logger } from '../config/logger.js';
 import config from '../config/keys.js';
 
 import { AppError, CustomError } from '../utils/errors.js';
-=======
+
+
+import { AppError, CustomError } from '../utils/errors.js';
+
 
 export interface AppError extends Error {
   statusCode?: number;
@@ -27,6 +30,7 @@ export class CustomError extends Error implements AppError {
     Error.captureStackTrace(this, this.constructor);
   }
 }
+
 
 
 interface ErrorResponse {

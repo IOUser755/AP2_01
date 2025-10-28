@@ -17,8 +17,14 @@ export default defineConfig({
       '@context': path.resolve(__dirname, './src/context'),
       '@assets': path.resolve(__dirname, './src/assets'),
 
+
+      '@types': path.resolve(__dirname, './src/types'),
+      '@context': path.resolve(__dirname, './src/context'),
+      '@assets': path.resolve(__dirname, './src/assets'),
+
       '@context': path.resolve(__dirname, './src/context'),
       '@types': path.resolve(__dirname, './src/types'),
+
 
     },
   },
@@ -33,7 +39,9 @@ export default defineConfig({
         target: 'http://localhost:5000',
 
 
+
         changeOrigin: true,
+
 
         ws: true,
       },
@@ -61,6 +69,5 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
   },
-
 
 });

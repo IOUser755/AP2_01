@@ -78,6 +78,7 @@ export default {
     require('@tailwindcss/typography'),
   ],
 
+
           50: '#eff6ff',
           100: '#dbeafe',
           200: '#bfdbfe',
@@ -93,5 +94,6 @@ export default {
     },
   },
   plugins: [],
+
 
 };

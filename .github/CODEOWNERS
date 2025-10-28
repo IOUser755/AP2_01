@@ -15,6 +15,7 @@
 /docs/ @your-org/docs-team
 README.md @your-org/docs-team
 
+
 # CODEOWNERS
 # Default owners for everything in the repo
 * @IOUser755
@@ -28,4 +29,5 @@ README.md @your-org/docs-team
 
 # Architecture decisions
 /docs/adr/ @IOUser755
+
 
