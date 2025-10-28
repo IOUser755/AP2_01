@@ -144,7 +144,7 @@ export const httpLogger = winston.createLogger({
 /**
  * Enhanced logging methods with structured data
  */
-interface LogContext {
+export interface LogContext {
   userId?: string;
   tenantId?: string;
   requestId?: string;

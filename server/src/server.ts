@@ -7,7 +7,7 @@ import { logger } from './config/logger.js';
 import database from './config/database.js';
 import redis from './config/redis.js';
 import corsConfig from './middleware/cors.js';
-import { securityHeaders, requestSecurity } from './middleware/security.js';
+import { securityHeaders, requestSecurity, apiRateLimit, requestSlowDown } from './middleware/security.js';
 import requestLogger from './middleware/requestLogger.js';
 import errorHandler, { notFoundHandler } from './middleware/errorHandler.js';
 import apiRoutes from './routes/index.js';
@@ -62,6 +62,8 @@ class Server {
 
     this.app.use(securityHeaders);
     this.app.use(requestSecurity);
+    this.app.use(apiRateLimit);
+    this.app.use(requestSlowDown);
     this.app.use(corsConfig);
     this.app.use(requestLogger);
 

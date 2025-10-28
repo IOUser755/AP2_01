@@ -11,6 +11,7 @@ import {
   exportTransactions,
 } from '../controllers/transactionController.js';
 import { executionRateLimit, expensiveRateLimit } from '../middleware/rateLimiter.js';
+import { paymentRateLimit, validatePaymentRequest } from '../middleware/security.js';
 import validation from '../middleware/validation.js';
 
 const router = Router();
@@ -49,7 +50,15 @@ const queryValidation = [
   query('maxAmount').optional().isFloat({ min: 0 }).withMessage('Maximum amount must be non-negative'),
 ];
 
-router.post('/', executionRateLimit, createTransactionValidation, validation, createTransaction);
+router.post(
+  '/',
+  paymentRateLimit,
+  executionRateLimit,
+  validatePaymentRequest,
+  createTransactionValidation,
+  validation,
+  createTransaction,
+);
 
 router.get('/', queryValidation, validation, getTransactions);
 
