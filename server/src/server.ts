@@ -1,16 +1,27 @@
 import express from 'express';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
+
+import helmet from 'helmet';
+
 import compression from 'compression';
 import config from './config/keys.js';
 import { logger } from './config/logger.js';
 import database from './config/database.js';
 import redis from './config/redis.js';
+
 import corsConfig from './middleware/cors.js';
 import { securityHeaders, requestSecurity } from './middleware/security.js';
 import requestLogger from './middleware/requestLogger.js';
 import errorHandler, { notFoundHandler } from './middleware/errorHandler.js';
 import apiRoutes from './routes/index.js';
+
+import cors from './middleware/cors.js';
+import security from './middleware/security.js';
+import requestLogger from './middleware/requestLogger.js';
+import rateLimiter from './middleware/rateLimiter.js';
+import errorHandler, { notFoundHandler } from './middleware/errorHandler.js';
+
 
 class Server {
   private app: express.Application;
@@ -60,10 +71,34 @@ class Server {
 
     this.app.set('trust proxy', 1);
 
+
     this.app.use(securityHeaders);
     this.app.use(requestSecurity);
     this.app.use(corsConfig);
     this.app.use(requestLogger);
+
+    this.app.use(helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:', 'https:'],
+          connectSrc: ["'self'", ...config.corsOrigins],
+          fontSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          mediaSrc: ["'self'"],
+          frameSrc: ["'none'"],
+        },
+      },
+      crossOriginEmbedderPolicy: false,
+    }));
+
+    this.app.use(security);
+    this.app.use(cors);
+    this.app.use(requestLogger);
+    this.app.use(rateLimiter);
+
 
     this.app.use(express.json({
       limit: '10mb',
@@ -72,6 +107,9 @@ class Server {
       },
     }));
     this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+    this.app.use(security);
+
 
     this.app.use(compression());
 
@@ -110,7 +148,26 @@ class Server {
       }
     });
 
+
     this.app.use('/api', apiRoutes);
+
+    this.app.get('/api', (_req, res) => {
+      res.json({
+        name: 'AgentPay Hub API',
+        version: '1.0.0',
+        description: 'Multi-tenant SaaS platform for AI payment agents',
+        documentation: '/api-docs',
+        endpoints: {
+          auth: '/api/auth',
+          agents: '/api/agents',
+          transactions: '/api/transactions',
+          mandates: '/api/mandates',
+          templates: '/api/templates',
+          webhooks: '/api/webhooks',
+        },
+      });
+    });
+
 
     logger.info('Routes setup complete');
   }

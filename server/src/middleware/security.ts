@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
+
 import helmet from 'helmet';
 import { randomUUID } from 'node:crypto';
 import { CustomError } from '../utils/index.js';
+
+import { randomUUID } from 'node:crypto';
+
 
 const sanitizeObject = (value: unknown): void => {
   if (!value || typeof value !== 'object') {
@@ -22,6 +26,7 @@ const sanitizeObject = (value: unknown): void => {
     }
   }
 };
+
 
 export const securityHeaders = helmet({
   contentSecurityPolicy: {
@@ -52,6 +57,9 @@ export const requestSecurity = (
   res: Response,
   next: NextFunction
 ): void => {
+
+const security = (req: Request, res: Response, next: NextFunction): void => {
+
   const requestId = (req.headers['x-request-id'] as string) ?? randomUUID();
   res.setHeader('X-Request-Id', requestId);
   req.requestId = requestId;
@@ -72,6 +80,7 @@ export const requestSecurity = (
 
   next();
 };
+
 
 export const validateApiKey = (req: Request, _res: Response, next: NextFunction): void => {
   const apiKey = req.headers['x-api-key'] as string | undefined;
@@ -159,6 +168,9 @@ export default {
   validateUserAgent,
   requestSizeLimit,
 };
+
+export default security;
+
 
 declare global {
   namespace Express {
