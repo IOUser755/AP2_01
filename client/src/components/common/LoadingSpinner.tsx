@@ -6,12 +6,12 @@ const sizeMap = {
   lg: 'h-12 w-12 border-4',
 };
 
-interface LoadingSpinnerProps {
+export interface LoadingSpinnerProps {
   size?: keyof typeof sizeMap;
   className?: string;
 }
 
-function LoadingSpinner({ size = 'md', className }: LoadingSpinnerProps) {
+export function LoadingSpinner({ size = 'md', className }: LoadingSpinnerProps) {
   return (
     <div
       className={clsx(

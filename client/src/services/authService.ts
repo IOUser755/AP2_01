@@ -1,5 +1,5 @@
-import { apiClient } from './api.ts';
-import type { AuthResponse, Tenant, User } from '../types/auth.ts';
+import { apiClient } from './api';
+import type { AuthResponse, Tenant, User } from '@types/auth';
 
 interface LoginPayload {
   email: string;

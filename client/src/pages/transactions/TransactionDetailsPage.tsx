@@ -5,17 +5,17 @@ function TransactionDetailsPage() {
   const { id } = useParams();
 
   return (
-    <div className="space-y-6 p-6 text-slate-100">
+    <div className="space-y-6">
       <Helmet>
         <title>Transaction details | AgentPay Hub</title>
       </Helmet>
-      <header>
-        <h1 className="text-3xl font-semibold">Transaction #{id}</h1>
-        <p className="text-slate-400">Mandate lineage, risk events, and settlement data.</p>
+      <header className="space-y-2">
+        <h1 className="text-2xl font-semibold text-gray-900">Transaction #{id}</h1>
+        <p className="text-sm text-gray-500">Lifecycle events, provider metadata, and settlement information.</p>
       </header>
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
-        <p className="text-slate-400">Transaction detail view coming soon.</p>
-      </div>
+      <section className="card">
+        <p className="text-gray-600">Detailed transaction view coming soon.</p>
+      </section>
     </div>
   );
 }

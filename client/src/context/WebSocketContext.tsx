@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
-import type { WebSocketEvent } from '../types/websocket.ts';
+
+import type { WebSocketEvent } from '@types/websocket';
 
 interface WebSocketContextValue {
   socket: Socket | null;
@@ -40,7 +41,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 
     if (!authToken) {
       setConnected(false);
-      return () => undefined;
+      return;
     }
 
     const socket = io(SOCKET_URL, {
@@ -53,44 +54,28 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
 
     socketRef.current = socket;
 
-    socket.on('connect', () => {
-      setConnected(true);
-    });
-
-    socket.on('disconnect', () => {
-      setConnected(false);
-    });
+    socket.on('connect', () => setConnected(true));
+    socket.on('disconnect', () => setConnected(false));
 
     return () => {
-      socket.removeAllListeners();
       socket.disconnect();
-      socketRef.current = null;
     };
   }, [authToken]);
 
-  const emit = (event: string, payload?: unknown) => {
-    if (!socketRef.current || !isConnected) return;
-    socketRef.current.emit(event, payload);
-  };
-
-  const subscribe = (event: string, handler: (data: WebSocketEvent) => void) => {
-    if (!socketRef.current) return () => undefined;
-
-    socketRef.current.on(event, handler);
-    return () => {
-      socketRef.current?.off(event, handler);
-    };
-  };
-
-  const value = useMemo<WebSocketContextValue>(
-    () => ({
-      socket: socketRef.current,
-      isConnected,
-      emit,
-      subscribe,
-    }),
-    [isConnected]
-  );
+  const value = useMemo<WebSocketContextValue>(() => ({
+    socket: socketRef.current,
+    isConnected,
+    emit: (event, payload) => {
+      socketRef.current?.emit(event, payload);
+    },
+    subscribe: (event, handler) => {
+      const listener = (data: WebSocketEvent) => handler(data);
+      socketRef.current?.on(event, listener);
+      return () => {
+        socketRef.current?.off(event, listener);
+      };
+    },
+  }), [isConnected, authToken]);
 
   return <WebSocketContext.Provider value={value}>{children}</WebSocketContext.Provider>;
 }

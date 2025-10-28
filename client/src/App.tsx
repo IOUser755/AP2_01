@@ -1,31 +1,33 @@
 import React, { Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { ErrorBoundary } from 'react-error-boundary';
-import { Helmet } from 'react-helmet-async';
-import ProtectedRoute from './components/common/ProtectedRoute.tsx';
-import LoadingSpinner from './components/common/LoadingSpinner.tsx';
-import ErrorFallback from './components/common/ErrorFallback.tsx';
-import { useAuth } from './hooks/useAuth.ts';
-import { useTheme } from './hooks/useTheme.ts';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
-const LoginPage = React.lazy(() => import('./pages/auth/LoginPage.tsx'));
-const RegisterPage = React.lazy(() => import('./pages/auth/RegisterPage.tsx'));
-const ForgotPasswordPage = React.lazy(() => import('./pages/auth/ForgotPasswordPage.tsx'));
-const DashboardPage = React.lazy(() => import('./pages/dashboard/DashboardPage.tsx'));
-const AgentsPage = React.lazy(() => import('./pages/agents/AgentsPage.tsx'));
-const AgentBuilderPage = React.lazy(() => import('./pages/agents/AgentBuilderPage.tsx'));
-const AgentDetailsPage = React.lazy(() => import('./pages/agents/AgentDetailsPage.tsx'));
-const TransactionsPage = React.lazy(() => import('./pages/transactions/TransactionsPage.tsx'));
-const TransactionDetailsPage = React.lazy(() => import('./pages/transactions/TransactionDetailsPage.tsx'));
-const MarketplacePage = React.lazy(() => import('./pages/marketplace/MarketplacePage.tsx'));
-const IntegrationsPage = React.lazy(() => import('./pages/integrations/IntegrationsPage.tsx'));
-const AnalyticsPage = React.lazy(() => import('./pages/analytics/AnalyticsPage.tsx'));
-const SettingsPage = React.lazy(() => import('./pages/settings/SettingsPage.tsx'));
-const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage.tsx'));
+import { DashboardLayout } from '@components/layout/DashboardLayout';
+import { PublicLayout } from '@components/layout/PublicLayout';
+import { ErrorBoundary } from '@components/common/ErrorBoundary';
+import { LoadingSpinner } from '@components/common/LoadingSpinner';
+import { useAuth } from '@hooks/useAuth';
 
-function App() {
+const LoginPage = React.lazy(() => import('@pages/auth/LoginPage'));
+const RegisterPage = React.lazy(() => import('@pages/auth/RegisterPage'));
+const ForgotPasswordPage = React.lazy(() => import('@pages/auth/ForgotPasswordPage'));
+const DashboardPage = React.lazy(() => import('@pages/dashboard/DashboardPage'));
+const AgentsPage = React.lazy(() => import('@pages/agents/AgentsPage'));
+const AgentBuilderPage = React.lazy(() => import('@pages/agents/AgentBuilderPage'));
+const AgentDetailsPage = React.lazy(() => import('@pages/agents/AgentDetailsPage'));
+const TransactionsPage = React.lazy(() => import('@pages/transactions/TransactionsPage'));
+const TransactionDetailsPage = React.lazy(() => import('@pages/transactions/TransactionDetailsPage'));
+const MarketplacePage = React.lazy(() => import('@pages/marketplace/MarketplacePage'));
+const IntegrationsPage = React.lazy(() => import('@pages/integrations/IntegrationsPage'));
+const AnalyticsPage = React.lazy(() => import('@pages/analytics/AnalyticsPage'));
+const SettingsPage = React.lazy(() => import('@pages/settings/SettingsPage'));
+const NotFoundPage = React.lazy(() => import('@pages/NotFoundPage'));
+
+interface RouteGuardProps {
+  children: React.ReactNode;
+}
+
+const ProtectedRoute = ({ children }: RouteGuardProps) => {
   const { isAuthenticated, isLoading } = useAuth();
-  const { theme } = useTheme();
 
   if (isLoading) {
     return (
@@ -35,134 +37,190 @@ function App() {
     );
   }
 
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+const PublicRoute = ({ children }: RouteGuardProps) => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+const App = () => {
   return (
-    <div className={`app ${theme}`}>
-      <Helmet>
-        <title>AgentPay Hub - Agentic Payment Platform</title>
-        <meta
-          name="description"
-          content="Build, deploy, and manage AI payment agents with visual workflows"
-        />
-        <meta name="theme-color" content="#3b82f6" />
-      </Helmet>
-
-      <ErrorBoundary
-        FallbackComponent={ErrorFallback}
-        onError={(error, errorInfo) => {
-          console.error('Application error:', error, errorInfo);
-        }}
+    <ErrorBoundary>
+      <Suspense
+        fallback={
+          <div className="min-h-screen flex items-center justify-center">
+            <LoadingSpinner size="lg" />
+          </div>
+        }
       >
-        <Suspense fallback={<LoadingSpinner size="lg" />}>
-          <Routes>
-            <Route
-              path="/login"
-              element={!isAuthenticated ? <LoginPage /> : <Navigate to="/dashboard" replace />}
-            />
-            <Route
-              path="/register"
-              element={!isAuthenticated ? <RegisterPage /> : <Navigate to="/dashboard" replace />}
-            />
-            <Route
-              path="/forgot-password"
-              element={!isAuthenticated ? <ForgotPasswordPage /> : <Navigate to="/dashboard" replace />}
-            />
+        <Routes>
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <PublicLayout>
+                  <LoginPage />
+                </PublicLayout>
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <PublicRoute>
+                <PublicLayout>
+                  <RegisterPage />
+                </PublicLayout>
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/forgot-password"
+            element={
+              <PublicRoute>
+                <PublicLayout>
+                  <ForgotPasswordPage />
+                </PublicLayout>
+              </PublicRoute>
+            }
+          />
 
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
                   <DashboardPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/agents"
-              element={
-                <ProtectedRoute>
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agents"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
                   <AgentsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/agents/new"
-              element={
-                <ProtectedRoute>
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agents/new"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
                   <AgentBuilderPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/agents/:id"
-              element={
-                <ProtectedRoute>
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agents/:id"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
                   <AgentDetailsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/agents/:id/edit"
-              element={
-                <ProtectedRoute>
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agents/:id/edit"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
                   <AgentBuilderPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/transactions"
-              element={
-                <ProtectedRoute>
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/transactions"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
                   <TransactionsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/transactions/:id"
-              element={
-                <ProtectedRoute>
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/transactions/:id"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
                   <TransactionDetailsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/marketplace"
-              element={
-                <ProtectedRoute>
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/marketplace"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
                   <MarketplacePage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/integrations"
-              element={
-                <ProtectedRoute>
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/integrations"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
                   <IntegrationsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/analytics"
-              element={
-                <ProtectedRoute>
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/analytics"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
                   <AnalyticsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
                   <SettingsPage />
-                </ProtectedRoute>
-              }
-            />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
 
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </Suspense>
-      </ErrorBoundary>
-    </div>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
+    </ErrorBoundary>
   );
-}
+};
 
 export default App;

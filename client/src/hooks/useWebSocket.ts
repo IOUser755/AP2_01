@@ -1,4 +1,4 @@
-import { useWebSocketContext } from '../context/WebSocketContext.tsx';
+import { useWebSocketContext } from '@context/WebSocketContext';
 
 export function useWebSocket() {
   return useWebSocketContext();

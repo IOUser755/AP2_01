@@ -5,22 +5,22 @@ function AgentDetailsPage() {
   const { id } = useParams();
 
   return (
-    <div className="space-y-6 p-6 text-slate-100">
+    <div className="space-y-6">
       <Helmet>
         <title>Agent details | AgentPay Hub</title>
       </Helmet>
-      <header className="flex items-center justify-between">
+      <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold">Agent #{id}</h1>
-          <p className="text-slate-400">Operational insights, workflow configuration, and analytics.</p>
+          <h1 className="text-2xl font-semibold text-gray-900">Agent #{id}</h1>
+          <p className="text-sm text-gray-500">Operational insights, workflow configuration, and performance analytics.</p>
         </div>
-        <Link to={`/agents/${id}/edit`} className="rounded bg-primary-600 px-4 py-2 text-white hover:bg-primary-700">
+        <Link to={`/agents/${id}/edit`} className="btn-primary">
           Edit agent
         </Link>
       </header>
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
-        <p className="text-slate-400">Detailed view coming soon.</p>
-      </div>
+      <section className="card">
+        <p className="text-gray-600">Detailed agent view coming soon.</p>
+      </section>
     </div>
   );
 }

@@ -2,17 +2,19 @@ import { Helmet } from 'react-helmet-async';
 
 function IntegrationsPage() {
   return (
-    <div className="space-y-6 p-6 text-slate-100">
+    <div className="space-y-6">
       <Helmet>
         <title>Integrations | AgentPay Hub</title>
       </Helmet>
-      <header>
-        <h1 className="text-3xl font-semibold">Integrations</h1>
-        <p className="text-slate-400">Connect payment processors, data warehouses, CRMs, and more.</p>
+      <header className="space-y-2">
+        <h1 className="text-2xl font-semibold text-gray-900">Integrations</h1>
+        <p className="text-sm text-gray-500">
+          Connect payment providers, risk engines, and compliance services to your agent workflows.
+        </p>
       </header>
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
-        <p className="text-slate-400">Integration catalog coming soon.</p>
-      </div>
+      <section className="card">
+        <p className="text-gray-600">Integration catalog coming soon.</p>
+      </section>
     </div>
   );
 }

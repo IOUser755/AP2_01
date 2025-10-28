@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
-import { authService } from '../services/authService.ts';
-import type { AuthState, Tenant, User } from '../types/auth.ts';
+
+import { authService } from '@services/authService';
+import type { AuthState, Tenant, User } from '@types/auth';
 
 interface RegisterData {
   email: string;
