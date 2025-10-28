@@ -42,6 +42,11 @@ const nodeTypeCopy: Record<string, NodeTypeCopy> = {
   },
 };
 
+const DEFAULT_PARAMETERS_PLACEHOLDER = `{
+  "amount": 100,
+  "currency": "USD"
+}`;
+
 export const NodePropertyPanel: React.FC<NodePropertyPanelProps> = ({
   selectedNode,
   onUpdateNode,
@@ -245,7 +250,7 @@ export const NodePropertyPanel: React.FC<NodePropertyPanelProps> = ({
             disabled={disabled}
             rows={6}
             className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-xs text-gray-700 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 disabled:cursor-not-allowed disabled:bg-gray-100"
-            placeholder="{\n  \"amount\": 100,\n  \"currency\": \"USD\"\n}"
+            placeholder={DEFAULT_PARAMETERS_PLACEHOLDER}
           />
           {parametersError && <p className="text-xs text-error-600">{parametersError}</p>}
         </div>
