@@ -2,7 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
 import { agentService } from '@services/agentService';
-import type { AgentTemplate, CreateAgentData, UpdateAgentData } from '@types/agent';
+import type { AgentTemplate, CreateAgentData } from '@types/agent';
+import type { AgentFilters, ExecutionFilters } from '@services/agentService';
 
 const QUERY_KEYS = {
   agents: ['agents'] as const,
@@ -12,7 +13,7 @@ const QUERY_KEYS = {
   templates: ['agent-templates'] as const,
 };
 
-export const useAgents = (filters?: Record<string, unknown>) => {
+export const useAgents = (filters?: AgentFilters) => {
   return useQuery({
     queryKey: [...QUERY_KEYS.agents, filters],
     queryFn: () => agentService.getAgents(filters),
@@ -47,7 +48,7 @@ export const useUpdateAgent = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateAgentData }) =>
+    mutationFn: ({ id, data }: { id: string; data: Partial<CreateAgentData> }) =>
       agentService.updateAgent(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.agents });
@@ -111,7 +112,7 @@ export const useAgentAnalytics = (id: string) => {
   });
 };
 
-export const useAgentExecutions = (id: string, filters?: Record<string, unknown>) => {
+export const useAgentExecutions = (id: string, filters?: ExecutionFilters) => {
   return useQuery({
     queryKey: [...QUERY_KEYS.agentExecutions(id), filters],
     queryFn: () => agentService.getExecutionHistory(id, filters),
@@ -134,8 +135,15 @@ export const useCloneAgent = () => {
   });
 };
 
-export const useAgentTemplates = (filters?: Record<string, unknown>) => {
-  return useQuery<{ templates: AgentTemplate[] }>({
+export const useAgentTemplates = (filters?: {
+  category?: string;
+  search?: string;
+  tags?: string[];
+  featured?: boolean;
+  page?: number;
+  limit?: number;
+}) => {
+  return useQuery<AgentTemplate[]>({
     queryKey: [...QUERY_KEYS.templates, filters],
     queryFn: () => agentService.getTemplates(filters),
     staleTime: 1000 * 60 * 10,
