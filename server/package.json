@@ -13,7 +13,7 @@
     "test:coverage": "NODE_ENV=test jest --coverage"
   },
   "dependencies": {
-    "@google-cloud/kms": "^3.5.0",
+    "@google-cloud/kms": "^5.2.1",
     "axios": "^1.6.5",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
