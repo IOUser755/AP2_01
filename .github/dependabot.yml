@@ -6,9 +6,6 @@ updates:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "client"
   
   - package-ecosystem: "npm"
     directory: "/server"
@@ -16,9 +13,6 @@ updates:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "server"
   
 
 
@@ -30,9 +24,6 @@ updates:
     open-pull-requests-limit: 10
     reviewers:
       - "IOUser755"
-    labels:
-      - "dependencies"
-      - "npm"
 
   # GitHub Actions
 
@@ -46,7 +37,4 @@ updates:
     reviewers:
       - "IOUser755"
 
-
-    labels:
-      - "dependencies"
-      - "github-actions"
+      
