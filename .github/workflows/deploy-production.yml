@@ -81,7 +81,7 @@ jobs:
             VITE_STRIPE_PUBLISHABLE_KEY=${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY_PROD }}
 
       - name: Upload docker compose manifest
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: docker-compose-prod
           path: docker-compose.prod.yml
